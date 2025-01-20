@@ -1,25 +1,39 @@
-import React from 'react';
-import logo from './logo.svg';
-import './App.css';
+import { Box, Button, Typography } from "@mui/material";
+import { useDispatch, useSelector } from "react-redux";
+import { AppDispatch, RootState } from "./state/store";
+import { increment, decrement } from "./state/counter/counterSlice";
 
 function App() {
+  const counter = useSelector((state: RootState) => state.counter.value);
+  const disptch: AppDispatch = useDispatch();
+
   return (
-    <div className="App">
-      <header className="App-header">
-        <img src={logo} className="App-logo" alt="logo" />
-        <p>
-          Edit <code>src/App.tsx</code> and save to reload.
-        </p>
-        <a
-          className="App-link"
-          href="https://reactjs.org"
-          target="_blank"
-          rel="noopener noreferrer"
+    <Box>
+      <Box>
+        <Typography
+          variant="h3"
+          component="h1"
+          sx={{ textAlign: "center", marginTop: "10px" }}
         >
-          Learn React
-        </a>
-      </header>
-    </div>
+          Counter: {counter}
+        </Typography>
+      </Box>
+      <Box
+        sx={{
+          display: "flex",
+          gap: 3,
+          justifyContent: "center",
+          margin: "30px 0",
+        }}
+      >
+        <Button variant="contained" onClick={() => disptch(increment(2))}>
+          Increment
+        </Button>
+        <Button variant="contained" onClick={() => disptch(decrement(2))}>
+          Decrement
+        </Button>
+      </Box>
+    </Box>
   );
 }
 
