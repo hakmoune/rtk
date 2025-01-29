@@ -1,11 +1,24 @@
-import { Box, Button, Typography } from "@mui/material";
+import { Box, Button, Container, Typography } from "@mui/material";
 import { useDispatch, useSelector } from "react-redux";
 import { AppDispatch, RootState } from "./state/store";
 import { increment, decrement } from "./state/counter/counterSlice";
+import { fetchProducts } from "./state/products/productsSlice";
+import { useEffect } from "react";
+import Product from "./components/Product";
 
 function App() {
-  const counter = useSelector((state: RootState) => state.counter.value);
-  const disptch: AppDispatch = useDispatch();
+  const { value: counter } = useSelector((state: RootState) => state.counter);
+  const { products, status, error } = useSelector(
+    (state: RootState) => state.products
+  );
+  const dispatch: AppDispatch = useDispatch();
+
+  useEffect(() => {
+    dispatch(fetchProducts());
+  }, [dispatch]);
+
+  if (status === "loading") return <Typography>Loading...</Typography>;
+  if (status === "failed") return <Typography>Error: {error}</Typography>;
 
   return (
     <Box>
@@ -26,13 +39,23 @@ function App() {
           margin: "30px 0",
         }}
       >
-        <Button variant="contained" onClick={() => disptch(increment(2))}>
+        <Button variant="contained" onClick={() => dispatch(increment(2))}>
           Increment
         </Button>
-        <Button variant="contained" onClick={() => disptch(decrement(2))}>
+        <Button variant="contained" onClick={() => dispatch(decrement())}>
           Decrement
         </Button>
       </Box>
+      <Container>
+        <Typography variant="h4" component="h3">
+          Products
+        </Typography>
+        <ul>
+          {products.map((product) => (
+            <Product product={product} key={product.id} />
+          ))}
+        </ul>
+      </Container>
     </Box>
   );
 }
