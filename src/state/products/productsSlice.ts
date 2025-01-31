@@ -32,7 +32,7 @@ export const deleteProductById = createAsyncThunk(
   ) => {
     try {
       const response = await fetch(
-        `https://dummyjson.com/productsss/${product.id}`,
+        `https://dummyjson.com/products/${product.id}`,
         {
           method: "DELETE",
         }
