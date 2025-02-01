@@ -81,7 +81,7 @@ export const updateProductById = createAsyncThunk(
 
 const productsSlice = createSlice({
   name: "products", // Used to generate action types.
-  initialState,
+  initialState, // This will be used whenever the reducer is called with undefined as its state value, useful for cases like reading initial state from localStorage.
   reducers: {},
   extraReducers: (builder) => {
     // Fetch products
