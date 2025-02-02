@@ -5,20 +5,42 @@ import { increment, decrement } from "./state/counter/counterSlice";
 import { fetchProducts } from "./state/products/productsSlice";
 import { useEffect } from "react";
 import Product from "./components/Product";
+import {
+  fetchCarts,
+  selectAllCarts,
+  selectCartsError,
+  selectCartsStatus,
+} from "./state/carts/cartsSlice";
 
 function App() {
+  // Counter
   const { value: counter } = useSelector((state: RootState) => state.counter);
+
+  const dispatch: AppDispatch = useDispatch();
+
+  // Products
   const { products, status, error } = useSelector(
     (state: RootState) => state.products
   );
-  const dispatch: AppDispatch = useDispatch();
 
   useEffect(() => {
     dispatch(fetchProducts());
   }, [dispatch]);
 
+  // Carts
+  const carts = useSelector(selectAllCarts);
+  const cartsStatus = useSelector(selectCartsStatus);
+  const cartsError = useSelector(selectCartsError);
+
+  useEffect(() => {
+    dispatch(fetchCarts());
+  }, [dispatch]);
+
+  if (cartsStatus === "loading") return <Typography>Loading...</Typography>;
+  if (cartsStatus === "failed") return <Typography>{cartsError}</Typography>;
+
   if (status === "loading") return <Typography>Loading...</Typography>;
-  if (status === "failed") return <Typography>Error: {error}</Typography>;
+  if (status === "failed") return <Typography>{error}</Typography>;
 
   return (
     <Box>
