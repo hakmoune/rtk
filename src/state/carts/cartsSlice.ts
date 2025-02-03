@@ -50,13 +50,39 @@ export const fetchCarts = createAsyncThunk<ICart[], void>(
   }
 );
 
+export const createCart = createAsyncThunk<
+  ICart,
+  { userId: number; products: { id: number; quantity: number }[] }
+>("carts/addCart", async ({ userId, products }, { rejectWithValue }) => {
+  try {
+    const res = await fetch("https://dummyjson.com/carts/add", {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({
+        userId,
+        products,
+      }),
+    });
+
+    if (!res.ok) return rejectWithValue("Server Error: Failed to add cart");
+
+    return await res.json();
+  } catch (error: any) {
+    console.log(error);
+    return rejectWithValue(error.message);
+  }
+});
+
 const cartsSlice = createSlice({
   name: "carts",
   initialState,
   reducers: {
-    // addCart: cartsAdapter.addOne, // ✅ Add a new cart
-    // updateCart: cartsAdapter.updateOne, // ✅ Update a cart (by id)
-    // removeCart: cartsAdapter.removeOne, // ✅ Remove a cart
+    // When would we use addCart, updateCart, removeCart?
+    // 1. If we were not handling API requests and just managing local state in Redux (like a simple app with local data).
+    // 2. If we needed to optimistically update the UI (e.g., remove a cart before confirming API success).
+    // addCart: cartsAdapter.addOne, // ✅ Add a new cart (local reducers doesn't trigger API)
+    // updateCart: cartsAdapter.updateOne, // ✅ Update a cart (by id) (local reducers doesn't trigger API)
+    // removeCart: cartsAdapter.removeOne, // ✅ Remove a cart (local reducers doesn't trigger API)
   },
   extraReducers: (builder) => {
     builder
@@ -71,14 +97,31 @@ const cartsSlice = createSlice({
         state.status = "failed";
         state.error = action.payload as string;
       });
+    builder
+      .addCase(createCart.pending, (state) => {
+        state.status = "loading";
+      })
+      .addCase(createCart.fulfilled, (state, action) => {
+        state.status = "succeeded";
+        cartsAdapter.addOne(state, action.payload);
+      })
+      .addCase(createCart.rejected, (state, action) => {
+        state.status = "failed";
+        state.error = action.payload as string;
+      });
   },
 });
 
-// Selectors to get cart data
+// Export actions to handle local state (pre-built)
+// export const { addCart } = cartsSlice.actions;
+
+// Export Selectors (pre-built)
 export const selectCartsStatus = (state: RootState) => state.carts.status;
 export const selectCartsError = (state: RootState) => state.carts.error;
 export const {
   selectAll: selectAllCarts, // Get all carts
+  //selectById: selectCartById, // Get a specific cart by ID
+  //selectIds: selectCartIds, // Get all cart IDs
 } = cartsAdapter.getSelectors((state: RootState) => state.carts);
 
 export default cartsSlice.reducer;

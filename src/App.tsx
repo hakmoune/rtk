@@ -10,6 +10,7 @@ import {
   selectAllCarts,
   selectCartsError,
   selectCartsStatus,
+  createCart,
 } from "./state/carts/cartsSlice";
 
 function App() {
@@ -42,8 +43,27 @@ function App() {
   if (status === "loading") return <Typography>Loading...</Typography>;
   if (status === "failed") return <Typography>{error}</Typography>;
 
+  // Add Cart
+  const handleAddCart = () => {
+    dispatch(
+      createCart({
+        userId: 1,
+        products: [
+          { id: 100, quantity: 10 },
+          { id: 200, quantity: 10 },
+          { id: 300, quantity: 10 },
+        ],
+      })
+    );
+  };
+
   return (
     <Box>
+      <Box>
+        <Button variant="contained" onClick={handleAddCart}>
+          Add Cart
+        </Button>
+      </Box>
       <Box>
         <Typography
           variant="h3"
