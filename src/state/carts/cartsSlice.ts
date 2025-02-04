@@ -12,7 +12,7 @@ import { RootState } from "../store";
 // it expects an entity definition, which represents a single item (a cart in this case).
 const cartsAdapter = createEntityAdapter<ICart, number>({
   selectId: (cart) => cart.id, // Specify `id` as the unique identifier
-  sortComparer: (a, b) => b.id - a.id, // Sorting by cart ID (descending), (use localeCompare if the id is string. e.g: a.title.localeCompare(b.title))
+  sortComparer: (a, b) => a.id - b.id, // Sorting by cart ID (descending), (use localeCompare if the id is string. e.g: a.title.localeCompare(b.title))
 });
 
 // By default, Redux Toolkit assumes that your entity has an id field and that id is the unique identifier.
@@ -77,9 +77,11 @@ const cartsSlice = createSlice({
   name: "carts",
   initialState,
   reducers: {
-    // When would we use addCart, updateCart, removeCart?
+    // These reducers (addCart, updateCart, and removeCart) are not making API calls; they are only modifying the Redux store.
+    // When would we use them ?
     // 1. If we were not handling API requests and just managing local state in Redux (like a simple app with local data).
-    // 2. If we needed to optimistically update the UI (e.g., remove a cart before confirming API success).
+    // 2. When optimistically updating the UI (e.g., show the cart instantly, then send an API request).
+    // 3. When adding a cart temporarily in the frontend.
     // addCart: cartsAdapter.addOne, // ✅ Add a new cart (local reducers doesn't trigger API)
     // updateCart: cartsAdapter.updateOne, // ✅ Update a cart (by id) (local reducers doesn't trigger API)
     // removeCart: cartsAdapter.removeOne, // ✅ Remove a cart (local reducers doesn't trigger API)
@@ -103,7 +105,7 @@ const cartsSlice = createSlice({
       })
       .addCase(createCart.fulfilled, (state, action) => {
         state.status = "succeeded";
-        cartsAdapter.addOne(state, action.payload);
+        cartsAdapter.addOne(state, action.payload); // ✅ Add cart to the store
       })
       .addCase(createCart.rejected, (state, action) => {
         state.status = "failed";
@@ -112,16 +114,16 @@ const cartsSlice = createSlice({
   },
 });
 
-// Export actions to handle local state (pre-built)
-// export const { addCart } = cartsSlice.actions;
+// Export actions to handle local state
+// export const { addCart, updateCart, removeCart} = cartsSlice.actions;
 
-// Export Selectors (pre-built)
+// Export Selectors
 export const selectCartsStatus = (state: RootState) => state.carts.status;
 export const selectCartsError = (state: RootState) => state.carts.error;
 export const {
   selectAll: selectAllCarts, // Get all carts
-  //selectById: selectCartById, // Get a specific cart by ID
-  //selectIds: selectCartIds, // Get all cart IDs
+  selectById: selectCartById, // Get a specific cart by ID
+  selectIds: selectCartIds, // Get all cart IDs
 } = cartsAdapter.getSelectors((state: RootState) => state.carts);
 
 export default cartsSlice.reducer;
