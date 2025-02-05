@@ -20,7 +20,7 @@ const Carts = () => {
   const carts = useSelector(selectAllCarts);
   const cartsStatus = useSelector(selectCartsStatus);
   const cartsError = useSelector(selectCartsError);
-  const cartById = useSelector((state: RootState) => selectCartById(state, 1)); // if the cart does not exist, it simply returns undefined.
+  const cartById = useSelector((state: RootState) => selectCartById(state, 30)); // if the cart doesn't exist, it returns undefined.
   const cartsIds = useSelector(selectCartIds);
 
   useEffect(() => {

@@ -19,6 +19,8 @@ export interface ICart {
   userId: number;
   totalProducts: number;
   totalQuantity: number;
+  isDeleted?: boolean;
+  deletedOn?: string;
 }
 
 export interface IinitialState extends EntityState<ICart, number> {

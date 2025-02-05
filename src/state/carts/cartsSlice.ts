@@ -73,6 +73,56 @@ export const createCart = createAsyncThunk<
   }
 });
 
+export const deleteCart = createAsyncThunk<ICart, number>(
+  "carts/deleteCart",
+  async (cartId, { rejectWithValue }) => {
+    try {
+      const res = await fetch(`https://dummyjson.com/carts/${cartId}`, {
+        method: "DELETE",
+      });
+
+      if (!res.ok)
+        return rejectWithValue("Server Error: Failed to delete the Cart");
+
+      return await res.json();
+    } catch (error: any) {
+      console.error(error);
+      return rejectWithValue(error.message);
+    }
+  }
+);
+
+export const updateCart = createAsyncThunk<
+  ICart,
+  {
+    cartId: number;
+    merge: boolean;
+    products: { id: number; quantity: number }[];
+  }
+>(
+  "carts/updateCart",
+  async ({ cartId, merge, products }, { rejectWithValue }) => {
+    try {
+      const res = await fetch(`https://dummyjson.com/carts/${cartId}`, {
+        method: "PUT",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({
+          merge,
+          products,
+        }),
+      });
+
+      if (!res.ok)
+        return rejectWithValue("Server Error: Failed to update cart");
+
+      return await res.json();
+    } catch (error: any) {
+      console.error(error);
+      return rejectWithValue(error.message);
+    }
+  }
+);
+
 const cartsSlice = createSlice({
   name: "carts",
   initialState,
@@ -87,6 +137,7 @@ const cartsSlice = createSlice({
     // removeCart: cartsAdapter.removeOne, // ✅ Remove a cart (local reducers doesn't trigger API)
   },
   extraReducers: (builder) => {
+    //FETCH CART
     builder
       .addCase(fetchCarts.pending, (state) => {
         state.status = "loading";
@@ -99,6 +150,7 @@ const cartsSlice = createSlice({
         state.status = "failed";
         state.error = action.payload as string;
       });
+    //CREATE CART
     builder
       .addCase(createCart.pending, (state) => {
         state.status = "loading";
@@ -108,6 +160,35 @@ const cartsSlice = createSlice({
         cartsAdapter.addOne(state, action.payload); // ✅ Add cart to the store
       })
       .addCase(createCart.rejected, (state, action) => {
+        state.status = "failed";
+        state.error = action.payload as string;
+      });
+    //DELETE CART
+    builder
+      .addCase(deleteCart.pending, (state) => {
+        state.status = "loading";
+      })
+      .addCase(deleteCart.fulfilled, (state, action) => {
+        state.status = "succeeded";
+        cartsAdapter.removeOne(state, action.payload.id);
+      })
+      .addCase(deleteCart.rejected, (state, action) => {
+        state.status = "failed";
+        state.error = action.payload as string;
+      });
+    //UPDATE CART
+    builder
+      .addCase(updateCart.pending, (state) => {
+        state.status = "loading";
+      })
+      .addCase(updateCart.fulfilled, (state, action) => {
+        state.status = "succeeded";
+        cartsAdapter.updateOne(state, {
+          id: action.payload.id,
+          changes: action.payload,
+        });
+      })
+      .addCase(updateCart.rejected, (state, action) => {
         state.status = "failed";
         state.error = action.payload as string;
       });
