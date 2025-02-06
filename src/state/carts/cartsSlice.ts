@@ -1,6 +1,7 @@
 import {
   createAsyncThunk,
   createEntityAdapter,
+  createSelector,
   createSlice,
 } from "@reduxjs/toolkit";
 import { ICart, IinitialState } from "./types";
@@ -206,5 +207,28 @@ export const {
   selectById: selectCartById, // Get a specific cart by ID
   selectIds: selectCartIds, // Get all cart IDs
 } = cartsAdapter.getSelectors((state: RootState) => state.carts);
+
+export const selectCarts = createSelector(
+  // Fonction(s) qui extraient les données nécessaires de l'état Redux.
+  [selectAllCarts, selectCartsStatus, selectCartsError, selectCartIds], // Input selectors
+  // Prend les résultats des sélecteurs d'entrée / input selectors et renvoie la valeur finale calculée
+  (cartsList, status, error, ids) => ({
+    cartsList,
+    status,
+    error,
+    ids,
+  }) // Output function
+);
+
+export const selectOneCartById = createSelector(
+  // Fonction(s) qui extraient les données nécessaires de l'état Redux.
+  [selectCartById, selectCartsStatus, selectCartsError], // Input selectors
+  // Prend les résultats des sélecteurs d'entrée / input selectors et renvoie la valeur finale calculée
+  (cart, statusCart, errorCart) => ({
+    cart,
+    statusCart,
+    errorCart,
+  }) // Output function
+);
 
 export default cartsSlice.reducer;

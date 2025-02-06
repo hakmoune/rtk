@@ -11,9 +11,24 @@ import {
   createCart,
   selectCartById,
   selectCartIds,
+  selectCarts,
+  selectOneCartById,
 } from "../state/carts/cartsSlice";
 
 const Carts = () => {
+  const { cartsList, status, error, ids } = useSelector(selectCarts);
+  console.log("cartsList", cartsList);
+  console.log("status", status);
+  console.log("error", error);
+  console.log("ids", ids);
+
+  const { cart, statusCart, errorCart } = useSelector((state: RootState) =>
+    selectOneCartById(state, 1)
+  );
+  console.log("cart", cart);
+  console.log("statusCart", statusCart);
+  console.log("errorCart", errorCart);
+
   const dispatch: AppDispatch = useDispatch();
 
   // Carts
